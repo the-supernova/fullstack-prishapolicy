@@ -10,7 +10,7 @@ export default function BookCard({ title, author, coverImage }: Props) {
   return (
     <>
       <div className="flex flex-col w-[15%]">
-        <div className="w-full h-[400px] rounded-lg overflow-hidden">
+        <div className="w-full h-[40vh] rounded-lg overflow-hidden">
           <Image
             width={250}
             height={400}

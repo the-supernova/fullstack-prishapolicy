@@ -4,8 +4,10 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { bookData } from "@/utils/bookData";
 import BookCard from "@/components/BookCard";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 export default function Home() {
+  const router = useRouter();
   return (
     <main className="flex flex-col gap-[4rem]">
       <NavBar />
@@ -24,10 +26,10 @@ export default function Home() {
               coverImage={book.coverImage}
             />
           ))}
-          <div className="flex flex-col w-[15%] h-[400px] gap-4 items-center justify-center border-dashed border-2 border-[#27378C] rounded-lg hover:cursor-pointer">
+          <div className="flex flex-col w-[15%] h-[400px] gap-4 items-center justify-center border-dashed border-2 border-[#27378C] rounded-lg hover:cursor-pointer" onClick={() => router.push('/add')}>
             <AiOutlinePlus color={"#27378C"} />
             <Link
-              href="/"
+              href="/add"
               className="text-[#27378C] hover:underline hover:underline-offset-4"
             >
               Add a Book
