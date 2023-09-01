@@ -2,7 +2,7 @@ import DropZone from "@/components/DropZone";
 import NavBar from "@/components/NavBar";
 import { trpc } from "@/utils/trpc";
 import Image from "next/image";
-import Link from "next/link";
+import axios from "axios";
 import { useRouter } from "next/router";
 import { FormEvent, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
@@ -12,23 +12,59 @@ export default function Add() {
   const router = useRouter();
   const [selectedFileName, setSelectedFileName] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const addBookMutation = trpc.postBookData.useMutation();
+  const updateBookMutation = trpc.updateWithFiles.useMutation();
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 
     const bookData = {
-      title: formData.get("title"),
-      author: formData.get("author"),
-      readtime: formData.get("readtime"),
-      description: formData.get("details"),
+      title: formData.get("title") as string,
+      author: formData.get("author") as string,
+      readtime: Number(formData.get("readtime")),
+      description: formData.get("details") as string,
     }
-    // console.log('bookcover', formData.get('bookcover'));
-    // console.log('title', formData.get('title'));
-    // console.log('author', formData.get('author'));
-    // console.log('readtime', formData.get('readtime'));
-    // console.log('details', formData.get('details'));
-    // console.log('dropzone-file', formData.get('dropzone-file'));
+
+    const imageData = new FormData();
+    imageData.append('file', formData.get('bookcover') as File)
+    imageData.append('upload_preset', 'bookData')
+
+    const fileData = new FormData();
+    fileData.append('file', formData.get('dropzone-file') as File)
+    fileData.append('upload_preset', 'bookData')
+
+    addBookMutation.mutate(bookData, {
+      onSuccess: async (data) => {
+        let imageURL, fileURL;
+        let uploadFileApiResponse = await axios.post('https://api.cloudinary.com/v1_1/dxkgx5g5i/auto/upload', fileData)
+
+        if (!uploadFileApiResponse.data) {
+          console.log('Error uploading filedata', uploadFileApiResponse)
+          return;
+        }
+        fileURL = uploadFileApiResponse.data.secure_url
+
+        let uploadImageApiResponse = await axios.post('https://api.cloudinary.com/v1_1/dxkgx5g5i/image/upload', imageData)
+        if (!uploadImageApiResponse.data) {
+          console.log('Error uploading imagedata', uploadImageApiResponse)
+          return;
+        }
+        imageURL = uploadImageApiResponse.data.secure_url
+        updateBookMutation.mutate({ id: data.id, cover: imageURL, pdf: fileURL }, {
+          onSuccess: () => {
+            router.push('/')
+          },
+          onError: (error) => {
+            console.log('Error uploading filedata', error)
+          }
+        })
+      },
+      onError: (error) => {
+        console.log('error', error)
+      }
+    })
+
     e.currentTarget.reset();
   };
   return (
@@ -113,7 +149,7 @@ export default function Add() {
               <div className="w-[50%] flex flex-col gap-2">
                 <label htmlFor="readtime">Book read time</label>
                 <input
-                  type="text"
+                  type="number"
                   id="readtime"
                   name="readtime"
                   placeholder="Add time in mins"

@@ -50,7 +50,7 @@ export default function DropZone({ selectedFile, setSelectedFile }: Props) {
                     id="dropzone-file"
                     name="dropzone-file"
                     type="file"
-                    value={''}
+                    accept="application/pdf"
                     onChange={(e) => {
                       if (e.target.files) {
                         if (e.target.files.length) {
