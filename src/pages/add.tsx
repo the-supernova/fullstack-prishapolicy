@@ -1,25 +1,34 @@
 import DropZone from "@/components/DropZone";
 import NavBar from "@/components/NavBar";
+import { trpc } from "@/utils/trpc";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { FormEvent, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { BiChevronLeft } from "react-icons/bi";
 
 export default function Add() {
+  const router = useRouter();
   const [selectedFileName, setSelectedFileName] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     const formData = new FormData(e.currentTarget);
-    console.log('bookcover', formData.get('bookcover'));
-    console.log('title', formData.get('title'));
-    console.log('author', formData.get('author'));
-    console.log('readtime', formData.get('readtime'));
-    console.log('details', formData.get('details'));
-    console.log('dropzone-file', formData.get('dropzone-file'));
+
+    const bookData = {
+      title: formData.get("title"),
+      author: formData.get("author"),
+      readtime: formData.get("readtime"),
+      description: formData.get("details"),
+    }
+    // console.log('bookcover', formData.get('bookcover'));
+    // console.log('title', formData.get('title'));
+    // console.log('author', formData.get('author'));
+    // console.log('readtime', formData.get('readtime'));
+    // console.log('details', formData.get('details'));
+    // console.log('dropzone-file', formData.get('dropzone-file'));
     e.currentTarget.reset();
   };
   return (
@@ -27,7 +36,7 @@ export default function Add() {
       <NavBar />
       <section className="container mx-auto flex flex-col gap-6 px-10 py-5">
         <div>
-          <button className="flex items-center gap-2 border-2 border-[#27378C] rounded-lg px-6 py-2">
+          <button className="flex items-center gap-2 border-2 border-[#27378C] rounded-lg px-6 py-2" onClick={() => router.push('/')}>
             <BiChevronLeft />
             <p className="text-[#27378C] hover:underline hover:underline-offset-4">
               Back to Home
@@ -39,7 +48,7 @@ export default function Add() {
           <div className="w-[50%] flex">
             <label
               htmlFor="bookcover"
-              className="w-full flex flex-col gap-4 items-center justify-center border-dashed border-2 border-[#27378C] rounded-lg hover:cursor-pointer relative"
+              className="w-full flex flex-col gap-4 items-center justify-center border-dashed border-2 border-[#27378C] rounded-lg hover:cursor-pointer relative overflow-hidden"
             >
               {!selectedFile ? (
                 <>
