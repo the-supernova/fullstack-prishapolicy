@@ -106,27 +106,27 @@ export default function Add() {
       <section className="container mx-auto flex flex-col gap-6 px-10 py-5">
         <div>
           <button
-            className="flex items-center gap-2 border-2 border-[#27378C] rounded-lg px-6 py-2"
+            className="flex items-center gap-2 border-2 border-brand-primary rounded-lg px-6 py-2"
             onClick={() => router.push("/")}
           >
             <BiChevronLeft />
-            <p className="text-[#27378C] hover:underline hover:underline-offset-4">
+            <p className="text-brand-primary hover:underline hover:underline-offset-4">
               Back to Home
             </p>
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex gap-8">
-          <div className="w-[50%] flex">
+        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-8">
+          <div className="w-full sm:w-[30vw] min-w-[18rem] flex">
             <label
               htmlFor="bookcover"
-              className="w-full flex flex-col gap-4 items-center justify-center border-dashed border-2 border-[#27378C] rounded-lg hover:cursor-pointer relative overflow-hidden"
+              className="w-full flex flex-col py-4 gap-4 items-center justify-center border-dashed border-2 border-brand-primary rounded-lg hover:cursor-pointer relative overflow-hidden"
               onDragEnter={handleDrag}
             >
               {!selectedFile ? (
                 <>
-                  <AiOutlinePlus color={"#27378C"} />
-                  <p className="text-[#27378C] hover:underline hover:underline-offset-4">
+                  <AiOutlinePlus color={"var(--clr-primary)"} />
+                  <p className="text-brand-primary font-medium hover:underline hover:underline-offset-4">
                     Add a Book Cover
                   </p>
                 </>
@@ -159,55 +159,59 @@ export default function Add() {
             {dragActive && <div className="absolute w-full h-full inset-0" onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop}></div>}
           </div>
 
-          <div className="w-[50%] flex flex-col gap-4">
+          <div className="sm:w-[50%] flex flex-col gap-4">
             <div className="flex flex-col gap-2">
-              <label htmlFor="title">Name of the Book</label>
+              <label htmlFor="title" className="font-medium">Name of the Book<span className="text-red-600"> *</span></label>
               <input
                 type="text"
                 id="title"
                 name="title"
+                maxLength={200}
                 required
                 placeholder="Enter the published name"
-                className="border-2 focus:outline-[#27378C] rounded-md p-2"
+                className="border-2 focus:outline-brand-primary rounded-md p-2"
               />
             </div>
-            <div className="w-full flex gap-4">
-              <div className="w-[50%] flex flex-col gap-2">
-                <label htmlFor="author">Author of the Book</label>
+            <div className="w-full flex flex-col md:flex-row gap-4">
+              <div className="md:w-[50%] flex flex-col gap-2">
+                <label htmlFor="author" className="font-medium">Author of the Book<span className="text-red-600"> *</span></label>
                 <input
                   type="text"
                   id="author"
                   name="author"
+                  maxLength={200}
                   required
                   placeholder="Add all the authors comma separated"
-                  className="border-2 focus:outline-[#27378C] rounded-md p-2"
+                  className="border-2 focus:outline-brand-primary rounded-md p-2"
                 />
               </div>
-              <div className="w-[50%] flex flex-col gap-2">
-                <label htmlFor="readtime">Book read time</label>
+              <div className="md:w-[50%] flex flex-col gap-2">
+                <label htmlFor="readtime" className="font-medium">Book read time<span className="text-red-600"> *</span></label>
                 <input
                   type="number"
+                  min={0}
                   id="readtime"
                   name="readtime"
                   required
                   placeholder="Add time in mins"
-                  className="border-2 focus:outline-[#27378C] rounded-md p-2"
+                  className="border-2 focus:outline-brand-primary rounded-md p-2"
                 />
               </div>
             </div>
             <div className="flex flex-col gap-2">
-              <label htmlFor="details">Book Details</label>
+              <label htmlFor="details" className="font-medium">Book Details<span className="text-red-600"> *</span></label>
               <textarea
                 id="details"
                 name="details"
                 required
                 rows={5}
+                maxLength={2000}
                 placeholder="Should not be more than 300 words"
-                className="border-2 focus:outline-[#27378C] rounded-md p-2"
+                className="border-2 focus:outline-brand-primary rounded-md p-2"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label htmlFor="upload">Upload PDF</label>
+              <label htmlFor="upload" className="font-medium">Upload PDF<span className="text-red-600"> *</span></label>
               <DropZone
                 selectedFile={selectedFileName}
                 setSelectedFile={setSelectedFileName}
@@ -216,7 +220,7 @@ export default function Add() {
             <div>
               <button
                 type="submit"
-                className="rounded-lg px-4 py-2 bg-[#27378C] text-white"
+                className="rounded-lg px-4 py-2 bg-brand-primary text-white font-medium"
               >
                 Add book
               </button>

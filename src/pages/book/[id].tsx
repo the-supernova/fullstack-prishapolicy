@@ -1,6 +1,7 @@
 import Modal from "@/components/Modal";
 import NavBar from "@/components/NavBar";
 import { appRouter } from "@/server/routers/_app";
+import getTime from "@/utils/getTime";
 import prisma from "@/utils/prisma";
 import { trpc } from "@/utils/trpc";
 import { createServerSideHelpers } from "@trpc/react-query/server";
@@ -36,18 +37,18 @@ export default function Book({
       <section className="container mx-auto flex flex-col gap-6 px-10 py-5">
         <div>
           <button
-            className="flex items-center gap-2 border-2 border-[#27378C] rounded-lg px-6 py-2"
+            className="flex items-center gap-2 border-2 border-brand-primary rounded-lg px-6 py-2"
             onClick={() => router.push("/")}
           >
             <BiChevronLeft />
-            <p className="text-[#27378C] hover:underline hover:underline-offset-4">
+            <p className="text-brand-primary hover:underline hover:underline-offset-4">
               Back to Home
             </p>
           </button>
         </div>
 
-        <div className="flex gap-8">
-          <div className="w-[50%] h-[75vh] relative rounded-lg overflow-hidden">
+        <div className="flex flex-col sm:flex-row gap-8">
+          <div className="w-full sm:w-[30vw] min-w-[18rem] h-[75vh] relative rounded-lg overflow-hidden">
             <Image
               src={data.cover}
               layout="fill"
@@ -55,17 +56,19 @@ export default function Book({
               alt="bookcover"
             />
           </div>
-          <div className="w-[50%] flex flex-col gap-4">
-            <h1 className="text-[2.5rem] text-[#27378C] font-semibold">
+          <div className="sm:w-[50%] flex flex-col gap-4">
+            <h1 className="text-[2.5rem] text-brand-primary font-semibold">
               {data.title}
             </h1>
-            <p className="text-[1.25rem]">{data.author}</p>
-            <p className="text-[1.25rem]">
-              Book Read Time: {data.readtime} Mins
-            </p>
+            <div>
+              <p className="text-[1.25rem] text-brand-secondary">{data.author}</p>
+              <p className="text-[1.25rem] text-brand-secondary">
+                Book Read Time: {getTime(data.readtime)}
+              </p>
+            </div>
             <p>{data.description}</p>
             <button
-              className="self-start rounded-lg px-4 py-2 bg-[#27378C] text-white"
+              className="self-start rounded-lg px-4 py-2 bg-brand-primary text-white"
               onClick={openModal}
             >
               Read This Book
