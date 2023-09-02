@@ -5,7 +5,7 @@
 Live Demo: [https://fullstack-prishapolicy.vercel.app/](https://fullstack-prishapolicy.vercel.app/)
 
 > [!NOTE]
-> PDFs cannot be viewed on mobile devices, as embeds are not supported on mobile devices.
+> PDFs cannot be viewed on mobile devices, as embeds are not supported on mobile browsers.
 
 ## Running the application
 Install the dependencies:

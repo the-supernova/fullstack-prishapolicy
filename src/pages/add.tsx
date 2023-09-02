@@ -2,11 +2,11 @@ import DropZone from "@/components/DropZone";
 import NavBar from "@/components/NavBar";
 import { trpc } from "@/utils/trpc";
 import Image from "next/image";
-import axios from "axios";
 import { useRouter } from "next/router";
 import { DragEvent, FormEvent, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { BiChevronLeft } from "react-icons/bi";
+import { uploadToCloudinary } from "@/services/uploadToCloudinary";
 
 export default function Add() {
   const router = useRouter();
@@ -17,15 +17,17 @@ export default function Add() {
   const addBookMutation = trpc.postBookData.useMutation();
   const updateBookMutation = trpc.updateWithFiles.useMutation();
 
-  const handleDrag = (e: DragEvent<HTMLLabelElement> | DragEvent<HTMLDivElement>) => {
+  const handleDrag = (
+    e: DragEvent<HTMLLabelElement> | DragEvent<HTMLDivElement>
+  ) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true);
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false);
     }
-  }
+  };
 
   const handleImageDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -38,7 +40,7 @@ export default function Add() {
         setSelectedImageFile(null);
       }
     }
-  }
+  };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -54,7 +56,7 @@ export default function Add() {
     const fileData = {
       cover: selectedImageFile as File,
       pdf: selectedPdfFile as File,
-    }
+    };
     if (!fileData.cover) {
       setError("Please upload a book cover");
       return;
@@ -62,54 +64,36 @@ export default function Add() {
       setError("Please upload a book pdf");
       return;
     }
-    setError("")
-    const imageData = new FormData();
-    imageData.append("file", fileData.cover);
-    imageData.append("upload_preset", "bookData");
-
-    const pdfData = new FormData();
-    pdfData.append("file", fileData.pdf);
-    pdfData.append("upload_preset", "bookData");
+    setError("");
 
     addBookMutation.mutate(bookData, {
       onSuccess: async (data) => {
-        let imageURL, fileURL;
-        let uploadFileApiResponse = await axios.post(
-          "https://api.cloudinary.com/v1_1/dxkgx5g5i/auto/upload",
-          pdfData
-        );
+        try {
+          const [imageURL, fileURL] = await Promise.all([
+            uploadToCloudinary(fileData.cover, "image"),
+            uploadToCloudinary(fileData.pdf, "auto"),
+          ]);
 
-        if (!uploadFileApiResponse.data) {
-          console.log("Error uploading filedata", uploadFileApiResponse);
-          return;
+          updateBookMutation.mutate(
+            { id: data.id, cover: imageURL, pdf: fileURL },
+            {
+              onSuccess: () => {
+                router.push("/");
+              },
+              onError: (error) => {
+                console.log("Error uploading filedata", error);
+              },
+            }
+          );
+        } catch (error) {
+          console.log("Error during form submission", error);
         }
-        fileURL = uploadFileApiResponse.data.secure_url;
-
-        let uploadImageApiResponse = await axios.post(
-          "https://api.cloudinary.com/v1_1/dxkgx5g5i/image/upload",
-          imageData
-        );
-        if (!uploadImageApiResponse.data) {
-          console.log("Error uploading imagedata", uploadImageApiResponse);
-          return;
-        }
-        imageURL = uploadImageApiResponse.data.secure_url;
-        updateBookMutation.mutate(
-          { id: data.id, cover: imageURL, pdf: fileURL },
-          {
-            onSuccess: () => {
-              router.push("/");
-            },
-            onError: (error) => {
-              console.log("Error uploading filedata", error);
-            },
-          }
-        );
       },
       onError: (error) => {
         console.log("error", error);
       },
     });
+    // reset form
     setSelectedImageFile(null);
     setSelectedPdfFile(null);
     e.currentTarget.reset();
@@ -130,7 +114,10 @@ export default function Add() {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-8">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col sm:flex-row gap-8"
+        >
           <div className="w-full sm:w-[30vw] min-w-[18rem] flex">
             <label
               htmlFor="bookcover"
@@ -169,12 +156,22 @@ export default function Add() {
                 }
               }}
             />
-            {dragActive && <div className="absolute w-full h-full inset-0" onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleImageDrop}></div>}
+            {dragActive && (
+              <div
+                className="absolute w-full h-full inset-0"
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleImageDrop}
+              ></div>
+            )}
           </div>
 
           <div className="sm:w-[50%] flex flex-col gap-4">
             <div className="flex flex-col gap-2">
-              <label htmlFor="title" className="font-medium">Name of the Book<span className="text-red-600"> *</span></label>
+              <label htmlFor="title" className="font-medium">
+                Name of the Book<span className="text-red-600"> *</span>
+              </label>
               <input
                 type="text"
                 id="title"
@@ -187,7 +184,9 @@ export default function Add() {
             </div>
             <div className="w-full flex flex-col md:flex-row gap-4">
               <div className="md:w-[50%] flex flex-col gap-2">
-                <label htmlFor="author" className="font-medium">Author of the Book<span className="text-red-600"> *</span></label>
+                <label htmlFor="author" className="font-medium">
+                  Author of the Book<span className="text-red-600"> *</span>
+                </label>
                 <input
                   type="text"
                   id="author"
@@ -199,7 +198,9 @@ export default function Add() {
                 />
               </div>
               <div className="md:w-[50%] flex flex-col gap-2">
-                <label htmlFor="readtime" className="font-medium">Book read time<span className="text-red-600"> *</span></label>
+                <label htmlFor="readtime" className="font-medium">
+                  Book read time<span className="text-red-600"> *</span>
+                </label>
                 <input
                   type="number"
                   min={0}
@@ -212,7 +213,9 @@ export default function Add() {
               </div>
             </div>
             <div className="flex flex-col gap-2">
-              <label htmlFor="details" className="font-medium">Book Details<span className="text-red-600"> *</span></label>
+              <label htmlFor="details" className="font-medium">
+                Book Details<span className="text-red-600"> *</span>
+              </label>
               <textarea
                 id="details"
                 name="details"
@@ -224,7 +227,9 @@ export default function Add() {
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label htmlFor="upload" className="font-medium">Upload PDF<span className="text-red-600"> *</span></label>
+              <label htmlFor="upload" className="font-medium">
+                Upload PDF<span className="text-red-600"> *</span>
+              </label>
               <DropZone
                 selectedFile={selectedPdfFile}
                 setSelectedFile={setSelectedPdfFile}
